@@ -1,0 +1,24 @@
+name:                   beta
+version:                0.0.0.1
+stability:              experimental
+
+cabal-version:          >= 1.2
+build-type:             Simple
+
+author:                 James Cook <mokus@deepbondi.net>
+maintainer:             James Cook <mokus@deepbondi.net>
+license:                PublicDomain
+homepage:               /dev/null
+
+category:               Math
+synopsis:               Beta functions
+description:            Beta functions
+
+Library
+  hs-source-dirs:       src
+  exposed-modules:      Math.Beta
+  other-modules:        Math.Beta.Incomplete
+  build-depends:        base >= 3,
+                        continued-fractions,
+                        converge,
+                        gamma
