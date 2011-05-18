@@ -1,8 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Math.Beta.Incomplete 
-    ( incompleteBeta
+    ( betaI
     , checkBounds
-    , uncheckedIncompleteBeta
+    , uncheckedBetaI
     ) where
 
 import Math.ContinuedFraction
@@ -28,28 +28,28 @@ checkBounds fName f x a b
     | b <  0    = error (fName ++ ": b < 0")
     | otherwise = f x a b
 
-incompleteBeta :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a
-incompleteBeta = checkBounds "incompleteBeta" . uncheckedIncompleteBeta
+betaI :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a
+betaI = checkBounds "betaI" . uncheckedBetaI
 
-uncheckedIncompleteBeta :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a
-uncheckedIncompleteBeta qRule x a b
+uncheckedBetaI :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a
+uncheckedBetaI qRule x a b
     | x == 0            = 0
     | x == 1            = 1
-    | all (>useQ) [a,b] = incompleteBetaByQ qRule  x a b
-    | x < (a+1)/(a+b+2) = incompleteBetaByCF       x a b
-    | otherwise         = iSymm incompleteBetaByCF x a b
+    | all (>useQ) [a,b] = betaIByQ qRule  x a b
+    | x < (a+1)/(a+b+2) = betaIByCF       x a b
+    | otherwise         = iSymm betaIByCF x a b
 
 iSymm :: Num a => (a -> a -> a -> a) -> (a -> a -> a -> a) 
 iSymm i x a b = 1 - i (1-x) b a
 
-incompleteBetaByCF :: (Gamma a, Ord a) => a -> a -> a -> a 
-incompleteBetaByCF x a b = c * z / a
+betaIByCF :: (Gamma a, Ord a) => a -> a -> a -> a 
+betaIByCF x a b = c * z / a
     where
         c   = exp (a*log x + b*log(1-x) - lnBeta a b)
         z   = convergeTo absEps relEps (lentz zCF)
         zCF = betaCF x a b
 
--- This computes a value Z such that
+-- This computes the continued fraction of a value Z such that
 -- B_x(a,b) = (x**a * (1-x)**b / a) * Z
 -- I_x(a,b) = B_x(a,b)/B(a,b) = (x**a * (1-x)**b / (a * beta a b)) * Z
 -- TODO: this needs major cleanup
@@ -68,8 +68,8 @@ betaCF x a b = gcf 0 (map (\d -> (d,1)) ds)
             , let m2 = 2*m
             ]
 
-incompleteBetaByQ :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a 
-incompleteBetaByQ qRule x a b
+betaIByQ :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a 
+betaIByQ qRule x a b
     | x < muA   = 1 - betaQ x xu
     | otherwise =     betaQ xl x
     where

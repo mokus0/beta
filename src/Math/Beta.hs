@@ -29,7 +29,7 @@ instance Beta Float where
     b_ x a b = double2Float (b_ (float2Double x) (float2Double a) (float2Double b))
 instance Beta Double where
     lnBeta z w = lnGamma z + lnGamma w - lnGamma (z+w)
-    i_ = checkBounds "i_" (incompleteBeta doubleQRule)
+    i_ = checkBounds "i_" (uncheckedBetaI doubleQRule)
 
 doubleQRule :: QRule U.Vector Double
 doubleQRule = gaussLegendre 0 1 18 1e-16
