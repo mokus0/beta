@@ -17,8 +17,10 @@ absEps  = 0
 relEps  = 1e-15
 useQ    = 3000
 
+lnBeta :: Gamma a => a -> a -> a
 lnBeta z w = lnGamma z + lnGamma w - lnGamma (z+w)
 
+checkBounds :: (Ord a, Num a) => String -> (a -> a -> a -> a) -> (a -> a -> a -> a) 
 checkBounds fName f x a b
     | x <  0    = error (fName ++ ": x < 0")
     | x >  1    = error (fName ++ ": x > 1")
@@ -26,9 +28,10 @@ checkBounds fName f x a b
     | b <  0    = error (fName ++ ": b < 0")
     | otherwise = f x a b
 
-incompleteBeta :: (RealFloat a, Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a
+incompleteBeta :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a
 incompleteBeta = checkBounds "incompleteBeta" . uncheckedIncompleteBeta
 
+uncheckedIncompleteBeta :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a
 uncheckedIncompleteBeta qRule x a b
     | x == 0            = 0
     | x == 1            = 1
@@ -36,8 +39,10 @@ uncheckedIncompleteBeta qRule x a b
     | x < (a+1)/(a+b+2) = incompleteBetaByCF       x a b
     | otherwise         = iSymm incompleteBetaByCF x a b
 
+iSymm :: Num a => (a -> a -> a -> a) -> (a -> a -> a -> a) 
 iSymm i x a b = 1 - i (1-x) b a
 
+incompleteBetaByCF :: (Gamma a, Ord a) => a -> a -> a -> a 
 incompleteBetaByCF x a b = c * z / a
     where
         c   = exp (a*log x + b*log(1-x) - lnBeta a b)
@@ -48,6 +53,7 @@ incompleteBetaByCF x a b = c * z / a
 -- B_x(a,b) = (x**a * (1-x)**b / a) * Z
 -- I_x(a,b) = B_x(a,b)/B(a,b) = (x**a * (1-x)**b / (a * beta a b)) * Z
 -- TODO: this needs major cleanup
+betaCF :: Fractional a => a -> a -> a -> CF a
 betaCF x a b = gcf 0 (map (\d -> (d,1)) ds)
     where
         ap1 = a+1
@@ -62,9 +68,7 @@ betaCF x a b = gcf 0 (map (\d -> (d,1)) ds)
             , let m2 = 2*m
             ]
 
-interleave []     ys = ys
-interleave (x:xs) ys = x : interleave ys xs
-
+incompleteBetaByQ :: (Gamma a, Ord a, V.Vector v (a,a)) => QRule v a -> a -> a -> a -> a 
 incompleteBetaByQ qRule x a b
     | x < muA   = 1 - betaQ x xu
     | otherwise =     betaQ xl x
@@ -93,4 +97,4 @@ incompleteBetaByQ qRule x a b
                 am1 = a-1; lnMuA = log muA
                 bm1 = b-1; lnMuB = log muB
                 
-                f t = exp (am1 * (log t - lnMuA) + bm1 * (log (1-t) - lnMuB))
+                f z = exp (am1 * (log z - lnMuA) + bm1 * (log (1-z) - lnMuB))

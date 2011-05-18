@@ -16,6 +16,7 @@ description:            Beta functions
 
 Library
   hs-source-dirs:       src
+  ghc-options:          -Wall
   exposed-modules:      Math.Beta
   other-modules:        Math.Beta.Incomplete
   build-depends:        base >= 3,
