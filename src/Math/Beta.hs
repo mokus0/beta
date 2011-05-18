@@ -5,6 +5,8 @@ module Math.Beta
 import Math.Beta.Incomplete
 import Math.Gamma hiding (beta)
 import GHC.Float (float2Double, double2Float)
+import qualified Data.Vector.Unboxed as U
+import Math.Quadrature.Gaussian
 
 -- |Minimum implementation: {lnBeta or beta} and {i_ or b_}
 class Floating a => Beta a where
@@ -27,4 +29,7 @@ instance Beta Float where
     b_ x a b = double2Float (b_ (float2Double x) (float2Double a) (float2Double b))
 instance Beta Double where
     lnBeta z w = lnGamma z + lnGamma w - lnGamma (z+w)
-    i_ = incompleteBeta
+    i_ = checkBounds "i_" (incompleteBeta doubleQRule)
+
+doubleQRule :: QRule U.Vector Double
+doubleQRule = gaussLegendre 0 1 18 1e-16
