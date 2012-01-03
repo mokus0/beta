@@ -3,7 +3,7 @@ module Math.Beta
     ) where
 
 import Math.Beta.Incomplete
-import Math.Gamma hiding (beta)
+import Math.Gamma (lnGamma)
 import GHC.Float (float2Double, double2Float)
 import qualified Data.Vector.Unboxed as U
 import Math.Quadrature.Gaussian
